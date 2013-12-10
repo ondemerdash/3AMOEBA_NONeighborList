@@ -1,0 +1,381 @@
+c
+c
+c     #############################################################
+c     ##  COPYRIGHT (C) 2012 Liam Denis O'Suilleabhain           ##
+c     ##                   All Rights Reserved                   ##
+c     #############################################################
+c
+c     ################################################################
+c     ##                                                            ##
+c     ##  routines below find the respective numbers of atoms in    ##
+c     ##  for the interactions between combinations of molecules    ##
+c     ##                                                            ##
+c     ################################################################
+c
+c     #############################################################
+c     ##                                                         ##
+c     ##       subroutine combo1  --  combinations of atoms      ##
+c     ##                                                         ##
+c     #############################################################
+c
+c
+c     "combo1" finds the index of atoms for which the interactions
+c     are being evaluated in empole3
+c
+c
+      subroutine combo1
+      implicit none
+      include 'sizes.i'
+      include 'mpole.i'
+      include 'molcul.i'
+      include 'combo.i'
+      integer i,ii,index
+      integer hatom1,latom1
+      integer hpole1,lpole1
+      logical goon
+c
+c Find the pole numbers and atom indices
+c for each of the 1 body interaction
+c
+      goon = .true.
+      latom1 = imol(1,moli1)
+      hatom1 = imol(2,moli1)
+      do i = 1, npole
+         ii = ipole(i)
+         if (ii .ge. latom1 .and. goon) then
+            lpole1 = i
+            hpole1 = lpole1
+            goon = .false.
+          else 
+            if (ii .le. hatom1 .and.
+     &       ii .gt. latom1) hpole1 = hpole1+1
+          end if
+      end do
+      np1 = (hpole1 - lpole1) + 1
+      na1 = (hatom1 - latom1) + 1
+      index = 0
+      do i = 1, np1
+         pnum(i) = lpole1 + index
+         index = index + 1
+      end do
+      index = 0
+      do i = 1, na1
+         anum(i) = latom1 + index
+         index = index + 1
+      end do
+      npole3b = np1
+      natom3b = na1
+      return
+      end
+
+c     #############################################################
+c     ##                                                         ##
+c     ##       subroutine combo2  --  combinations of atoms      ##
+c     ##                                                         ##
+c     #############################################################
+c
+c
+c     "combo2" finds the index of atoms for which the interactions
+c     are being evaluated in empole3
+c
+      subroutine combo2
+      implicit none
+      include 'sizes.i'
+      include 'mpole.i'
+      include 'molcul.i'
+      include 'combo.i'
+      integer i,ii,index
+      integer hatom1,hatom2
+      integer hpole1,hpole2
+      integer latom1,latom2
+      integer lpole1,lpole2
+      logical goon
+
+      goon = .true.
+      latom2 = imol(1,moli2)
+      hatom2 = imol(2,moli2)
+      do i = 1, npole
+         ii = ipole(i)
+         if (ii .ge. latom2 .and. goon) then
+            lpole2 = i
+            hpole2 = lpole2
+            goon = .false.
+         else
+            if (ii .le. hatom2 .and.
+     &          ii .gt. latom2) hpole2 = hpole2+1
+         end if
+      end do
+ 
+      np2 = np1 + (hpole2 - lpole2) + 1
+      na2 = na1 + (hatom2 - latom2) + 1
+      index = 0
+      do i = (np1+1), np2
+          pnum(i) = lpole2 + index
+          index = index + 1
+      end do
+      index = 0
+      do i = (na1+1), na2
+          anum(i) = latom2 + index
+          index = index + 1
+      end do
+      index = 0
+      do i = (na1+1), na2
+         anum(i) = imol(1,moli2)+index
+         index = index + 1
+      end do
+      npole3b = np2
+      natom3b = na2
+      return
+      end
+
+c     #############################################################
+c     ##                                                         ##
+c     ##       subroutine combo3  --  combinations of atoms      ##
+c     ##                                                         ##
+c     #############################################################
+c
+c
+c     "combo3" finds the index of atoms for which the interactions
+c     are being evaluated in empole3
+c
+      subroutine combo3
+      implicit none
+      include 'sizes.i'
+      include 'mpole.i'
+      include 'molcul.i'
+      include 'combo.i'
+      integer i,ii,index
+      integer hatom3, latom3
+      integer hpole3, lpole3
+      logical goon
+  
+c
+c Get atomic indices of molecule 3
+c
+      goon = .true.
+      latom3 = imol(1,moli3)
+      hatom3 = imol(2,moli3)
+      do i = 1, npole
+         ii = ipole(i)
+         if (ii .ge. latom3 .and. goon) then
+            lpole3 = i
+            hpole3 = lpole3
+            goon = .false.
+         else
+            if (ii .le. hatom3 .and.
+     &          ii .gt. latom3) hpole3 = hpole3+1
+         end if
+      end do
+ 
+c      print*,"lpole3=",lpole3,"hpole3=",hpole3
+      np3 = np2 + (hpole3 - lpole3) + 1
+      na3 = na2 + (hatom3 - latom3) + 1
+      index = 0
+      do i = (np2+1), np3
+          pnum(i) = lpole3 + index
+          index = index + 1
+      end do
+      index = 0
+      do i = (na2+1), na3
+          anum(i) = latom3 + index
+          index = index + 1
+      end do
+      index = 0
+      do i = (na2+1), na3
+         anum(i) = imol(1,moli3)+index
+         index = index + 1
+      end do
+      npole3b = np3
+      natom3b = na3
+      return
+      end
+
+
+
+c     #############################################################
+c     ##                                                         ##
+c     ##       subroutine combo4  --  combinations of atoms      ##
+c     ##                                                         ##
+c     #############################################################
+c
+c
+c     "combo4" finds the index of atoms for which the interactions
+c     are being evaluated in empole3
+c
+      subroutine combo4
+      implicit none
+      include 'sizes.i'
+      include 'mpole.i'
+      include 'molcul.i'
+      include 'combo.i'
+      integer i,ii,index
+      integer hatom4, latom4
+      integer hpole4, lpole4
+      logical goon
+  
+c
+c Get atomic indices of molecule 4
+c
+      goon = .true.
+      latom4 = imol(1,moli4)
+      hatom4 = imol(2,moli4)
+      do i = 1, npole
+         ii = ipole(i)
+         if (ii .ge. latom4 .and. goon) then
+            lpole4 = i
+            hpole4 = lpole4
+            goon = .false.
+         else
+            if (ii .le. hatom4 .and.
+     &          ii .gt. latom4) hpole4 = hpole4+1
+         end if
+      end do
+ 
+c      print*,"lpole4=",lpole4,"hpole4=",hpole4
+      np4 = np3 + (hpole4 - lpole4) + 1
+      na4 = na3 + (hatom4 - latom4) + 1
+      index = 0
+      do i = (np3+1), np4
+          pnum(i) = lpole4 + index
+          index = index + 1
+      end do
+      index = 0
+      do i = (na3+1), na4
+         anum(i) = imol(1,moli4)+index
+         index = index + 1
+      end do
+      npole3b = np4
+      natom3b = na4
+      return
+      end
+
+c
+c
+c     ###################################################
+c     ## COPYRIGHT(C) 2012 Liam Dennis O'Suilleabhain  ##
+c     ##              All Rights Reserved              ##
+c     ###################################################
+c
+c     #############################################################
+c     ##                                                         ##
+c     ##  subroutine findr2 -- Assess 2 and 3 body for cutoff r ##
+c     ##                                                         ##
+c     #############################################################
+c
+c
+c     "analyze" computes and displays the total potential energy;
+c     options are provided to display system and force field info,
+c     partition the energy by atom or by potential function type,
+c     show force field parameters by atom; output the large energy
+c     interactions and find electrostatic and inertial properties
+c
+c
+      subroutine findr2 (mol1,mol2,r_12)
+      implicit none
+      include 'sizes.i'
+      include 'atoms.i'
+      include 'molcul.i'
+      include 'combo.i'
+      include 'atmtyp.i'
+      real*8 xr,yr,zr,r_12
+      real*8 xcm,ycm,zcm,r_cm,M,r2
+      integer i,j,l1,mol1,mol2
+ 
+      r2b(moli) = 0.0d0
+      r2 = 0.0d0
+      xcm = 0.0d0
+      ycm = 0.0d0
+      zcm = 0.0d0
+      M = 0.0d0
+      do l1 = 1, npole3b
+         i = pnum(l1)
+         xcm = xcm + (mass(i)*x(i))
+         ycm = ycm + (mass(i)*y(i))
+         zcm = zcm + (mass(i)*z(i))
+         M = M + mass(i)
+      end do
+      xr = x(i) - x(j)
+      r_cm = (xcm + ycm + zcm)/M
+      do l1 = 1, npole3b
+         i = pnum(l1)
+         r2 = r2 +
+     &              (x(i)-xcm/M)*(x(i)-xcm/M) +
+     &              (y(i)-ycm/M)*(y(i)-ycm/M) +
+     &              (z(i)-zcm/M)*(z(i)-zcm/M)
+      end do
+
+      r_12 = sqrt(r2)
+      r2b(moli) = r_12
+      return
+      end
+
+c
+c
+c     ###################################################
+c     ## COPYRIGHT(C) 2012 Liam Dennis O'Suilleabhain  ##
+c     ##              All Rights Reserved              ##
+c     ###################################################
+c
+c     #############################################################
+c     ##                                                         ##
+c     ##  subroutine findr3 -- Find max radius between 3 bodies  ##
+c     ##                                                         ##
+c     #############################################################
+c
+c
+c     "analyze" computes and displays the total potential energy;
+c     options are provided to display system and force field info,
+c     partition the energy by atom or by potential function type,
+c     show force field parameters by atom; output the large energy
+c     interactions and find electrostatic and inertial properties
+c
+c
+      subroutine findr3 (r_123)
+      implicit none
+      include 'sizes.i'
+      include 'atoms.i'
+      include 'molcul.i'
+      include 'combo.i'
+      include 'atmtyp.i'
+      integer i,j,k,l1
+      real*8 r_12,r_13,r_23,r_123
+      real*8 xr1,yr1,zr1,r2_1
+      real*8 xr2,yr2,zr2,r2_2
+      real*8 xcm,ycm,zcm,r_cm,M,r2
+
+
+      call findr2(moli1,moli2,r_12)
+      call findr2(moli1,moli3,r_13)
+      call findr2(moli2,moli3,r_23)
+      
+      r_123 = r_12
+      if (r_13 .lt. r_123) r_123 = r_13
+      if (r_23 .lt. r_123) r_123 = r_23
+
+      r3b(moli) = 0.0d0
+      r2 = 0.0d0
+      xcm = 0.0d0
+      ycm = 0.0d0
+      zcm = 0.0d0
+      M = 0.0d0
+      do l1 = 1, npole3b
+         i = pnum(l1)
+         xcm = xcm + (mass(i)*x(i)) 
+         ycm = ycm + (mass(i)*y(i))
+         zcm = zcm + (mass(i)*z(i))
+         M = M + mass(i)
+      end do
+      r_cm = (xcm + ycm + zcm)/M
+      do l1 = 1, npole3b
+         i = pnum(l1)
+         r2 = r2 +
+     &              (x(i)-xcm/M)*(x(i)-xcm/M) +
+     &              (y(i)-ycm/M)*(y(i)-ycm/M) +
+     &              (z(i)-zcm/M)*(z(i)-zcm/M)
+      end do
+      r3b(moli) = r_123
+      return
+      end
+
+
+

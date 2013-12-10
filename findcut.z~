@@ -1,0 +1,51 @@
+c
+c
+c     ###################################################
+c     ## COPYRIGHT(C) 2012 Liam Dennis O'Suilleabhain  ##
+c     ##              All Rights Reserved              ##
+c     ###################################################
+c
+c     #############################################################
+c     ##                                                         ##
+c     ##  subroutine findr2 -- Assess 2 and 3 body for cutoff r ##
+c     ##                                                         ##
+c     #############################################################
+c
+c
+c     "analyze" computes and displays the total potential energy;
+c     options are provided to display system and force field info,
+c     partition the energy by atom or by potential function type,
+c     show force field parameters by atom; output the large energy
+c     interactions and find electrostatic and inertial properties
+c
+c
+      subroutine findr2
+      implicit none
+      include 'sizes.i'
+      include 'atoms.i'
+      include 'molcul.i'
+      include 'combo.i'
+      integer i,j,epvr,count1,count2
+      real*8 xr,yr,zr,r2
+ 
+      moli = 1
+      count1 = 1
+      count2 = 4
+      do moli1 = 1, nmol 
+         do moli2 = moli1+1, nmol
+            i = count1
+            j = count2
+            xr = x(i) - x(j)
+            yr = y(i) - y(j)
+            zr = z(i) - z(j)
+            r2 = xr*xr + yr*yr + zr*zr
+            write(epvr,*)sqrt(r2),epanalyze(moli)
+            moli = moli + 1
+            print*,count1,count2
+            count2 = count2 + 3
+         end do
+         count1 = count1 + 3
+         count2 = count1 + 3
+      end do
+      return
+      end

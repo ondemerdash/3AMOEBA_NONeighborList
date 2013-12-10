@@ -1,0 +1,164 @@
+c
+c     ###############################################################
+c     ##                                                           ##
+c     ##  subroutine empole3c_3bi  --  double loop multipole analysis
+c
+c     ##                                                           ##
+c     ###############################################################
+c
+c
+c     "empole3c" calculates the atomic multipole and dipole
+c     polarizability interaction energy using a particle mesh
+c     Ewald summation and double loop, and partitions the energy
+c     among the atoms
+c
+c
+      subroutine empole3c_3bi_PolelecOnly
+      implicit none
+      include 'sizes.i'
+      include 'energi.i'
+      include 'atoms.i'
+      include 'molcul.i'
+      include 'polar.i'
+      include 'combo.i'
+      include 'mpole.i'
+      real*8 ep1(nmol),ep2(nmol,nmol),ep3
+      real*8 emliam,epliam,r_123
+      real*8, allocatable :: field(:,:)
+      real*8, allocatable :: fieldp(:,:)
+      integer i,ii,b1,b2,b3,j,l1,counter(nmol,nmol),counts
+      emliam = 0
+      epliam = 0
+      delta1 = 0
+      delta2 = 0
+      delta3 = 0
+      b1 = 1
+      b2 = 2
+      b3 = 3
+
+
+      allocate (field(3,npole))
+      allocate (fieldp(3,npole))
+
+      do i = 1, npole
+         do j = 1, 3
+c            uind(j,i) = 0.0d0
+c            uinp(j,i) = 0.0d0
+            field(j,i) = 0.0d0
+            fieldp(j,i) = 0.0d0
+         end do
+      end do
+      do i = 1, npole
+         do j = 1, 3
+            u1b(j,i) = 0.0d0
+            u2b(j,i) = 0.0d0
+            u3b(j,i) = 0.0d0
+            do count1 = 1, 100
+               u_2b(j,i,count1) = 0.0d0
+            end do
+         end do
+      end do
+
+      call empole3c_PermelecOnly(field,fieldp)
+
+      body1 = .true.
+      if (body1) then
+         moli = 1
+         do moli1 = 1, nmol
+
+            npole3b=3
+            pnum(1)=imol(1,moli1)
+            pnum(2)=imol(1,moli1)+1
+            pnum(3)=imol(2,moli1)
+            np1=3
+            call empole3c_3b_PolelecOnly(field,fieldp)
+
+            ep1(moli) = ep
+            epliam = epliam + ep1(moli)
+         end do
+      end if
+
+      body1 = .false.
+      body2 = .true.
+      if (body2) then
+         moli = 1
+         do moli1 = 1, nmol-1
+            call combo1
+            do moli2 = moli1+1, nmol
+               npole3b=6
+               pnum(1)=imol(1,moli1)
+               pnum(2)=imol(1,moli1)+1
+               pnum(3)=imol(2,moli1)
+               pnum(4)=imol(1,moli2)
+               pnum(5)=imol(1,moli2)+1
+               pnum(6)=imol(2,moli2)
+               np1=3
+               np2=6
+
+
+c               r_123 = 0.0d0
+c               call findr2(r_123)
+c
+c               if(r_123 .lt. 5.0d0) then
+               call empole3c_3b_PolelecOnly(field,fieldp)
+               ep2(moli1,moli2)=ep-ep1(moli1)-ep1(moli2)
+               epliam = epliam + ep2(moli1,moli2)
+c               else
+c                  ep2(moli1,moli2)=0
+c               end if
+
+            end do
+         end do
+      end if
+
+      moli = 1
+      body2 = .false.
+      body3 = .true.
+      if(body3) then
+         do moli1 = 1, nmol-2
+            do moli2 = moli1+1, nmol-1
+               do moli3 = moli2+1, nmol
+                  npole3b=9
+                  pnum(1)=imol(1,moli1)
+                  pnum(2)=imol(1,moli1)+1
+                  pnum(3)=imol(2,moli1)
+                  pnum(4)=imol(1,moli2)
+                  pnum(5)=imol(1,moli2)+1
+                  pnum(6)=imol(2,moli2)
+                  pnum(7)=imol(1,moli3)
+                  pnum(8)=imol(1,moli3)+1
+                  pnum(9)=imol(2,moli3)
+                  np1=3
+                  np2=6
+                  np3=9
+
+c                  r_123 = 0.0d0
+c                  call findr3(r_123)
+
+c                  if(r_123 .lt. 6.25d0) then                  
+                   call empole3c_3b_PolelecOnly(field,fieldp)
+                   ep3=ep-ep2(moli1,moli2)
+     &                   - ep2(moli1,moli3)
+     &                   - ep2(moli2,moli3)
+     &                   - ep1(moli1)
+     &                   - ep1(moli2)
+     &                   - ep1(moli3)
+                   epliam = epliam + ep3
+
+c                  end if
+                  moli = moli + 1
+               end do
+            end do
+         end do
+      end if
+c      print*, "em3  =", emliam
+      print*, "emNew =", em
+      print*, "ep3New  =", epliam
+      em = em
+      ep = epliam
+
+
+      deallocate (field)
+      deallocate (fieldp)
+      return
+      end
